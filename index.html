@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>4x5 Grid with Excel Export</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <style>
+    body { font-family: sans-serif; padding: 20px; }
+    table { border-collapse: collapse; margin-bottom: 20px; }
+    td, th { border: 1px solid #ccc; padding: 8px; }
+    input[type="text"] { width: 100%; box-sizing: border-box; }
+    input[type="file"] { width: 100%; }
+  </style>
+</head>
+<body>
+  <h2>4x5 Grid Input</h2>
+  <table id="inputTable">
+    <thead>
+      <tr>
+        <th>Col 1</th>
+        <th>Col 2</th>
+        <th>Col 3</th>
+        <th>Col 4</th>
+        <th>Upload</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- Generate 4 rows -->
+      <script>
+        for (let row = 0; row < 4; row++) {
+          document.write('<tr>');
+          for (let col = 0; col < 4; col++) {
+            document.write(`<td><input type="text" /></td>`);
+          }
+          document.write(`<td><input type="file" /></td>`);
+          document.write('</tr>');
+        }
+      </script>
+    </tbody>
+  </table>
+
+  <button onclick="exportToExcel()">Export to Excel</button>
+
+  <script>
+    function exportToExcel() {
+      const table = document.getElementById("inputTable");
+      const rows = table.querySelectorAll("tbody tr");
+      const data = [];
+
+      rows.forEach(row => {
+        const cells = row.querySelectorAll("td");
+        const rowData = [];
+        for (let i = 0; i < cells.length; i++) {
+          const input = cells[i].querySelector("input");
+          if (input.type === "file") {
+            rowData.push(input.files[0]?.name || "");
+          } else {
+            rowData.push(input.value);
+          }
+        }
+        data.push(rowData);
+      });
+
+      const ws = XLSX.utils.aoa_to_sheet(data);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "Sheet1");
+      XLSX.writeFile(wb, "grid_data.xlsx");
+    }
+  </script>
+</body>
+</html>
